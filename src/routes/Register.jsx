@@ -2,10 +2,18 @@ import { useContext } from "react";
 import { UserContexts } from "../context/UserProvider";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { errorsFirebase } from "../utils/errorsFirebase";
+import { FormError } from "../components/FormError";
+import { formValidate } from "../utils/formValidate";
+import { FormInput } from "../components/FormInput";
+import { Title } from "../components/Title";
+import { FormButton } from "../components/FormButton";
 
 export const Register = () => {
   const navigate = useNavigate();
   const { registerUser } = useContext(UserContexts);
+  const { required, patternEmail, minLength, validateTrim, validateEquals } =
+    formValidate();
 
   const {
     register,
@@ -20,18 +28,8 @@ export const Register = () => {
       await registerUser(email, pass);
       navigate("/");
     } catch (error) {
-      console.log(error.code);
-      switch (error.code) {
-        case "auth/email-already-in-use":
-          setError("email", { message: "Email ya registrado" });
-          break;
-        case "auth/weak-password":
-          alert("La contraseña es muy sencilla");
-          break;
-        default:
-          alert("Error al registrar");
-          break;
-      }
+      const { code, message } = errorsFirebase(error.code);
+      setError(code, { message });
     }
 
     console.log(email, pass);
@@ -39,52 +37,44 @@ export const Register = () => {
 
   return (
     <>
-      <h1>Register</h1>
+      <Title title="Registro" />
       <form onSubmit={handleSubmit(onSubmit)}>
-        <input
+        <FormInput
           type="email"
           placeholder="ingrese email"
           {...register("email", {
-            required: { value: true, message: "campo obligatorio" },
-            pattern: {
-              value:
-                /[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,15}/,
-              message: "email no valido",
-            },
+            required,
+            pattern: patternEmail,
           })}
-        />
-        {errors.email && <span>{errors.email.message}</span>}
-        <input
+          label="Email:"
+          error={errors.email}
+        >
+          <FormError error={errors.email} />
+        </FormInput>
+        <FormInput
           type="password"
           placeholder="ingrese contraseña"
           {...register("pass", {
-            setValueAs: (v) => v.trim(),
-            minLength: {
-              value: 6,
-              message: "mínimo 6 caracteres",
-            },
-            validate: {
-              trim: (v) => {
-                if (!v.trim()) return "no seas huevon y pon una contraseña";
-                true;
-              },
-            },
+            minLength,
+            validate: validateTrim,
           })}
-        />
-        {errors.pass && errors.pass.message}
-        <input
+          label="Contraseña:"
+          error={errors.pass}
+        >
+          <FormError error={errors.pass} />
+        </FormInput>
+        <FormInput
           type="password"
           placeholder="confirme contraseña"
           {...register("confirmPass", {
-            setValueAs: (v) => v.trim(),
-            validate: {
-              equals: (v) =>
-                v === getValues("pass") || "Las contraseñas no coinciden",
-            },
+            validate: validateEquals(getValues),
           })}
-        />
-        {errors.confirmPass && errors.confirmPass.message}
-        <button type="submit">Registrar</button>
+          label="Confirmar Contraseña:"
+          error={errors.confirmPass}
+        >
+          <FormError error={errors.confirmPass} />
+        </FormInput>
+        <FormButton type="submit" text="Registrar" />
       </form>
     </>
   );
