@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { UserContexts } from "../context/UserProvider";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -8,8 +8,10 @@ import { FormInput } from "../components/FormInput";
 import { formValidate } from "../utils/formValidate";
 import { Title } from "../components/Title";
 import { FormButton } from "../components/FormButton";
+import { ButtonLoading } from "../components/ButtonLoading";
 
 export const Login = () => {
+  const [loading, setLoading] = useState(false);
   const { loginUser } = useContext(UserContexts);
   const { required, patternEmail, minLength, validateTrim } = formValidate();
   const navigate = useNavigate();
@@ -22,6 +24,7 @@ export const Login = () => {
   } = useForm();
 
   const onSubmit = async ({ email, pass }) => {
+    setLoading(true);
     try {
       await loginUser(email, pass);
       navigate("/");
@@ -29,6 +32,8 @@ export const Login = () => {
       console.log(error);
       const { code, message } = errorsFirebase(error.code);
       setError(code, { message });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,7 +63,12 @@ export const Login = () => {
         >
           <FormError error={errors.pass} />
         </FormInput>
-        <FormButton type="submit" text="login" />
+        <Button
+          type="submit"
+          text="Agregar URL"
+          color="green"
+          loading={loading.addUrl}
+        />
       </form>
     </>
   );
