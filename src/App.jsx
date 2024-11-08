@@ -21,7 +21,6 @@ function App() {
   return (
     <>
       <Navbar />
-      <h1>App</h1>
       <Routes>
         <Route path="/" element={<LayoutRequireAuth />}>
           <Route index element={<Home />} />
