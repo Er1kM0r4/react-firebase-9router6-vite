@@ -7,8 +7,7 @@ import { FormError } from "../components/FormError";
 import { FormInput } from "../components/FormInput";
 import { formValidate } from "../utils/formValidate";
 import { Title } from "../components/Title";
-import { FormButton } from "../components/FormButton";
-import { ButtonLoading } from "../components/ButtonLoading";
+import { Button } from "../components/Button";
 
 export const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -65,7 +64,7 @@ export const Login = () => {
         </FormInput>
         <Button
           type="submit"
-          text="Agregar URL"
+          text="Login"
           color="green"
           loading={loading.addUrl}
         />

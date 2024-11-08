@@ -20,7 +20,6 @@ export const UserProvider = (props) => {
       } else {
         setUser(null);
       }
-      console.log(user);
     });
 
     return () => unsubscribe();
